@@ -141,12 +141,13 @@ def vgrid(grid):
 
     return npnewgrid
 
-def optimize(movemap,cursor,rdir,cdir,move,path):
+def optimize(movemap,cursor,rdir,cdir,move,path,compass,movedir):
     proposed_move = [cursor[0]+rdir,cursor[1]+cdir]
     if movemap[(proposed_move[0],proposed_move[1])] > path:
         path = movemap[(proposed_move[0],proposed_move[1])]
         move = proposed_move
-    return move,path
+        movedir = compass
+    return move,path,movedir
 
 def path_finder(npcostmap,npgrid,rdir,cdir,cursor,cheapest,move,start):
     proposed_move = [cursor[0]+rdir,cursor[1]+cdir]
@@ -160,13 +161,19 @@ def path_finder(npcostmap,npgrid,rdir,cdir,cursor,cheapest,move,start):
     return move, cheapest
 
 
-# #grid = [[0, 0, 1, 0, 0, 0],
+# grid = [[0, 0, 1, 0, 0, 0],
 #         [0, 0, 1, 0, 0, 0],
 #         [0, 0, 0, 0, 1, 0],
 #         [0, 0, 1, 1, 1, 0],
 #         [0, 0, 0, 0, 1, 0]]
 
-grid = [[0,1],[0,0]]
+
+grid = [[0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 1, 0],
+        [0, 0, 1, 0, 1, 0],
+        [0, 0, 1, 0, 1, 0]]
+
 
 
 init = [0, 0]
@@ -174,7 +181,6 @@ goal = [len(grid)-1, len(grid[0])-1]
 cost = 1
 
 def search(grid,init,goal,cost):
-
 
 
     goal = adjustpoints(goal) # reset goal to new place after padding
@@ -222,22 +228,30 @@ def search(grid,init,goal,cost):
     movecount =1
     move =[-1,-1]
     cursor = init
+    lcompass = ["^","V","<",">"]
+    movedir = "x"
+    mymap = np.empty([npnewgrid.shape[0],npnewgrid.shape[1]]).astype('str')
+    mymmap = mymap.fill(0)
     while (cursor[0] != goal[0]) or (cursor[1]!= goal[1]):
         for i in range (0, r):
             rdir= npcoords[i,0]
             cdir =npcoords[i,1]
-            move,path = optimize(npmovemap,cursor,rdir,cdir,move,path)
+            compass = lcompass[i]
+            move,path,movedir = optimize(npmovemap,cursor,rdir,cdir,move,path,compass,movedir)
         path =0
         if move[0]==-1:
             print("no move found")
             break
+        mymap[(cursor[0],cursor[1])] = movedir
         cursor = move
         npmovemap[(cursor[0],cursor[1])] = movecount
 
         lastmovecount = movecount
         movecount = movecount +1
         move =[-1,-1]
+    mymap[(goal[0],goal[1])] = "*"
     path = [cursor[0],cursor[1],lastmovecount]
-    print(path)
+    print(npmovemap)
+    print(mymap)
     return path
 search(grid,init,goal,cost)
