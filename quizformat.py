@@ -149,10 +149,10 @@ def optimize(movemap,cursor,rdir,cdir,move,path,compass,movedir):
         movedir = compass
     return move,path,movedir
 
-def path_finder(npcostmap,npgrid,rdir,cdir,cursor,cheapest,move,start):
+def path_finder(npcostmap,npgrid,rdir,cdir,cursor,cheapest,move,start,npmovemap):
     proposed_move = [cursor[0]+rdir,cursor[1]+cdir]
     if proposed_move != start:
-        cost= npcostmap[proposed_move[0],proposed_move[1]]
+        cost= npcostmap[proposed_move[0],proposed_move[1]]+ npmovemap[proposed_move[0],proposed_move[1]]
         gridvalue = npgrid[proposed_move[0],proposed_move[1]]
 
         if (cost < cheapest) and (gridvalue!= 1) and (cost >=0) :
@@ -187,7 +187,7 @@ def search(grid,init,goal,cost):
     init = adjustpoints(init)# reset init to new place after padding
 
     npnewgrid = newgrid(grid,1)
-    fillholes(npnewgrid,init,goal)
+    #fillholes(npnewgrid,init,goal)
     npvgrid = vgrid(grid)
     if npvgrid[(init[0],init[1])] == 0:
         print("fail")
@@ -210,7 +210,7 @@ def search(grid,init,goal,cost):
         for i in range (0, r):
             rdir= npcoords[i,0]
             cdir =npcoords[i,1]
-            move, cheapest =  path_finder(npcostmap,npnewgrid,rdir,cdir,cursor,cheapest,move,start)
+            move, cheapest =  path_finder(npcostmap,npnewgrid,rdir,cdir,cursor,cheapest,move,start,npmovemap)
         npmovemap[(cursor[0],cursor[1])] =movecount
         start = cursor
         cheapest =100
